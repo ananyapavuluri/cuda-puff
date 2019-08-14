@@ -8,8 +8,6 @@ B = csvread("B.csv");
 
 trials = 5; % change when you change the number of trials
 
-%%%%%%%% DEANALISA's CODE (modified for 2D data matrices)%%%%%%%%%%%
-
 BT = 20;
 
 F = BT - B    ;
@@ -17,7 +15,7 @@ F = BT - B    ;
 %%%%%%%%%%%%% DEFINE PUFF CUTOFF %%%%%%%%%%%%%
 
 cutoff = 8; %(F-F0)/F0 = 3
-%F2 = F';
+
 
 for i = 1:length(F)
     for j = 1:trials
@@ -59,25 +57,6 @@ for x = 1:trials
     end
 end
 
-% for l = 2:length(F)
-%     
-%     if F(l-1) < 2 && F(l) > 2   
-%         dur_start_i = [dur_start_i l];  
-%         dur_start_t = [dur_start_t totaltime(l)];
-%     end
-%         
-%     if F(l) < 2 && F(l-1) > 2
-%         dur_end_i = [dur_end_i l];
-%         dur_end_t = [dur_end_t totaltime(l)];
-%     end
-% 
-% end
-
-%Make sure they are the same length
-
-% if dur_end_t(y,x) < dur_start_t(y,x) %The first start should be less than the first end
-%     dur_end_t = dur_end_t(2:length(dur_end_t),x); %Cleave first end value   
-% end
 
 if length(dur_start_i) ~= length(dur_end_i)
     
@@ -92,18 +71,10 @@ if length(dur_start_i) ~= length(dur_end_i)
 end
 
 
-
-
-
-
-
-
-%Calculate puff duration
+%Calculate puff durations
 
 puffdur = zeros(500,trials);
-% [pks2,locs2] = findpeaks(pks);
-% [pks3,locs3] = findpeaks(pks2);
-% [pks4,locs4] = findpeaks(pks3);
+
 for p = 1:trials
     for m = 1:length(dur_end_t) %go thru all start/end indices
         if dur_end_t(m,p) ~= 0 && dur_start_t(m,p) ~= 0
@@ -127,14 +98,6 @@ for i = 1:trials
    end
 end
 
-%%%%%%%%%%%%%%%%% CLEAVE %%%%%%%%%%%%%%%%%%
-
-%Only want to characterize puffs that we have all info for
-%The limiting variable is puff duration because a part of a puff may be
-%simulated i.e. there is a start but no end to calculate duration
-
-% pufftime = pufftime(:,1:length(puffdur));
-% pks = pks(1:length(puffdur),:);
 
 %%%%%%%%%%%% MEAN INTER-PUFF INTERVAL %%%%%%%%%%%%%
 
@@ -149,15 +112,12 @@ for j = 1:trials
 end
 meanIPI = nanmean(IPI);
 
-% Finding the time taken by each trial
-% 
-% trialtimes = zeros(trials);
-% for 
 
 %%%%%%%%%%%%%%%%%% PLOT %%%%%%%%%%%%%%%%%%%%
 
 
 % Cleaving pre-allocated zeros that will affect plots
+
 for q = 2:length(Time)
     for r = 1:trials
         if F(q,r) == 20
@@ -183,11 +143,11 @@ for u = 2:length(puffamps)
     end
 end
 
-%  Calcium Time Course
+%  Fluorescence Time Course (subplots for each trial)
 figure
 hold on
 for x = 1:trials
-    subplot(2,3,x);
+    subplot(2,3,x); % change dimensions based on how many trials are run in parallel
     plot(Time(:,x), F(:,x));
     title(['Trial: ',num2str(x)]);
     xlabel("Time in ms");
@@ -204,8 +164,6 @@ hold on
 for c = 1:trials
     plot(Time(:,c), F(:,c));
 end
-% plot(totaltime,F(:,1:length(totaltime)),'k')
-% plot(Time,F2)
 plot([0 100],[cutoff cutoff],'r-')
 plot([0 100],[2 2],'b-')
 ylabel('F/F0');
@@ -218,11 +176,6 @@ mn = mean(meanIPI);
 figure
 hold on
 histogram(IPI);
-% pd = fitdist(IPI','Normal');
-% x_values = 0:0.1:30;
-% y = pdf(pd,x_values);
-%plot(x_values,y,'LineWidth',3)
-%disp(IPI)
 xlabel('IPI')
 ylabel('Occurences')
 title(['Mean Inter-Puff Interval = ',num2str(mn)])
@@ -231,25 +184,13 @@ title(['Mean Inter-Puff Interval = ',num2str(mn)])
 figure
 hold on
 histogram(puffamps,10);
-% pd = fitdist(puffamps,'Normal');
-% x_values = 0:0.1:18;
-% y = pdf(pd,x_values);
-% plot(x_values,y,'LineWidth',3)
-% meanpeakamp = mean(pks);
-% stdpeakamp = std(pks);
-%title(['Mean Puff Amplitude = ',num2str(meanpeakamp),' +/- ',num2str(stdpeakamp)])
 xlabel('Puff Amplitude')
 ylabel('Occurences')
 
 %Plot histogram of puff durations
-
 figure
 hold on
 histogram(puffdur);
-% pd = fitdist(puffdur','Normal');
-% x_values = 0:0.01:1.5;
-% y = pdf(pd,x_values);
-% plot(x_values,y,'LineWidth',3)
 xlabel('Puff Duration')
 ylabel('Occurences')
 title("Duration");
